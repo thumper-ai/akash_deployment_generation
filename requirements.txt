@@ -1,0 +1,12 @@
+duckduckgo_search==5.2.2
+langchain==0.1.9
+langchain-community==0.0.25
+langchain-core==0.1.28
+langchain-experimental==0.0.53
+langchain-openai==0.0.5
+langchain-text-splitters==0.0.1
+langgraph==0.0.26
+langsmith==0.1.13
+pyaml==23.12.0
+PyYAML==6.0.1
+toml==0.10.2

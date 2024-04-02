@@ -1,0 +1,67 @@
+version: '2.0'
+
+services:
+  web:
+    image: dewy
+    env:
+      - ENVIRONMENT=LOCAL
+      - SENTENCE_TRANSFORMERS_HOME=/tmp/cache/sentence_transformers
+      - HF_HOME=/tmp/cache/hf
+      - DB=postgresql://dewydbuser:dewydbpwd@postgres/dewydb
+    expose:
+      - port: 8000
+        as: 80
+        to:
+          - global: yes
+    depends_on:
+      - name: postgres
+  postgres:
+    image: ankane/pgvector
+    env:
+      - POSTGRES_DB=dewydb
+      - POSTGRES_USER=dewydbuser
+      - POSTGRES_PASSWORD=dewydbpwd
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    expose:
+      - port: 5432
+        as: 5432
+        to:
+          - global: yes
+
+profiles:
+  compute:
+    web:
+      resources:
+        cpu:
+          units: 0.5
+        memory:
+          size: 512Mi
+        storage:
+          size: 1Gi
+    postgres:
+      resources:
+        cpu:
+          units: 0.5
+        memory:
+          size: 512Mi
+        storage:
+          size: 1Gi
+  placement:
+    westcoast:
+      pricing:
+        web:
+          denom: uakt
+          amount: 1000
+        postgres:
+          denom: uakt
+          amount: 1000
+
+deployment:
+  web:
+    westcoast:
+      profile: web
+      count: 1
+  postgres:
+    westcoast:
+      profile: postgres
+      count: 1

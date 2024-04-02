@@ -1,0 +1,47 @@
+version: '3.7'
+services:
+  dewy:
+    image: dewy
+    environment:
+      ENVIRONMENT: LOCAL
+      SENTENCE_TRANSFORMERS_HOME: "/tmp/cache/sentence_transformers"
+      HF_HOME: "/tmp/cache/hf"
+      DB: "postgresql://dewydbuser:dewydbpwd@postgres/dewydb"
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"   # http on localhost:8000
+    networks:
+      - kb-network
+    depends_on:
+      - postgres
+    volumes:
+      - dewy-cache:/tmp/cache
+
+  postgres:
+    image: ankane/pgvector
+    ports:
+     - 5432:5432
+    restart: always
+    environment:
+      - POSTGRES_DB=dewydb
+      - POSTGRES_USER=dewydbuser
+      - POSTGRES_PASSWORD=dewydbpwd
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - db:/var/lib/postgresql
+    networks:
+      - kb-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U root']
+      interval: 60s
+
+volumes:
+  db:
+  dewy-cache:
+
+networks:
+  kb-network:
